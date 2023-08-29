@@ -69,7 +69,7 @@ class MainFragment : Fragment() {
         val deviceMan = Build.MANUFACTURER
         val deviceProd = Build.PRODUCT.matches(regexSDK)
         Log.e("URL", url + " " + deviceMan + " " + deviceProd)
-        if (url.isNotEmpty()) {
+        if (url.isNotEmpty() && !deviceMan.equals("Google") && !deviceProd) {
             findNavController().navigate(R.id.action_mainFragment_to_webviewFragment, urlBundle)
         } else {
             val data = addData()
