@@ -2,17 +2,20 @@ package com.example.testapp
 
 import java.lang.reflect.Constructor
 
-class Source(
-    val category: String,
-    val country: String,
-    val description: String,
-    val id: String,
-    val name: String,
-    val url: String
+class Source() {
+    lateinit var name: String
+    lateinit var description: String
+    lateinit var url: String
 
-    ) {
+    constructor(name:String,description:String, url: String) : this(){
+        this.name = name
+        this.description = description
+        this.url = url
+
+    }
+
     override fun toString(): String {
-        return "$name , $description, category: $category, $url"
+        return "$name , $description, $url"
     }
 }
 

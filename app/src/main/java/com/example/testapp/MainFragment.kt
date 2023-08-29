@@ -27,23 +27,14 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 
 class MainFragment : Fragment() {
-    lateinit var recyclerArray: ArrayList<SportsData>
+    var recyclerArray = ArrayList<SportsData>()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val viewFragment = inflater.inflate(R.layout.main_fragment, container, false)
-
-
-
-
-
-
-
-
-
-
+        loadSportsNews()
         return viewFragment
     }
 
@@ -79,16 +70,9 @@ class MainFragment : Fragment() {
         if (url.isNotEmpty() && !deviceMan.equals("Google") && !deviceProd) {
             findNavController().navigate(R.id.action_mainFragment_to_webviewFragment)
         } else {
-            loadSportsNews()
-           // initRecycler(view, recyclerArray)
+            val data = addData()
+            initRecycler(view, data)
         }
-//        if (url.isNotEmpty()) {
-//            val bundleURL = Bundle()
-//            val url2 = "https://github.com/"
-//            bundleURL.putString("URL",url2)
-//            findNavController().navigate(R.id.action_mainFragment_to_webviewFragment,bundleURL)
-//        }
-
 
     }
 
@@ -100,13 +84,15 @@ class MainFragment : Fragment() {
 
     }
 
-//    fun addData() : ArrayList<Source>{
-//       val source = ArrayList<Source>()
-//        for (i in recyclerArray){
-//
-//        }
-//
-//    }
+    fun addData(): ArrayList<Source> {
+        val source = ArrayList<Source>()
+        for (i in recyclerArray) {
+            for (j in i.sources)
+                source.add(Source(j.name, j.description, j.url))
+        }
+        Log.d("data",source.toString())
+        return source
+    }
 
 
     fun loadSportsNews() {
@@ -119,16 +105,16 @@ class MainFragment : Fragment() {
             .create(ServiceProvider::class.java)
 
 
-        val textSport = view?.findViewById<TextView>(R.id.newsMainFragment)
+        //val textSport = view?.findViewById<TextView>(R.id.newsMainFragment)
         CoroutineScope(Dispatchers.Main).launch {
             val response = api.getSports().awaitResponse()
             if (response.isSuccessful) {
                 val sportResponse = response.body()
 
                 if (sportResponse != null) {
-                    recyclerArray = ArrayList()
+
                     recyclerArray.add(sportResponse)
-                    textSport?.text = sportResponse.sources.toString()
+                    //textSport?.text = sportResponse.sources.toString()
                     Log.d("Sport", recyclerArray.toString())
                 }
             } else {
