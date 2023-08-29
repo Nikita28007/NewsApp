@@ -13,16 +13,16 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 
 class WebviewFragment : Fragment() {
-    lateinit var web : WebView
+    lateinit var web: WebView
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.webview_fragment, container, false)
-         web = view.findViewById<WebView>(R.id.webview)
+        web = view.findViewById(R.id.webview)
         web.settings.javaScriptEnabled = true
-        web.webViewClient= WebViewClient()
+        web.webViewClient = WebViewClient()
         val URL = arguments?.getString("URL")
         web.loadUrl(URL.toString())
 
@@ -32,13 +32,13 @@ class WebviewFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        val callback : OnBackPressedCallback = object : OnBackPressedCallback(true){
+        val callback: OnBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (web.canGoBack()){
+                if (web.canGoBack()) {
                     web.goBack()
                 }
             }
         }
-        requireActivity().onBackPressedDispatcher.addCallback(this,callback)
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 }

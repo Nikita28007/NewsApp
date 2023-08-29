@@ -64,16 +64,18 @@ class MainFragment : Fragment() {
         }
         val url = remoteConfig.getString("url")
         val regexSDK = Regex(".*_?sdk_?.*")
+        val urlBundle = Bundle()
+        urlBundle.putString("URL", "https://stackoverflow.com/")
         val deviceMan = Build.MANUFACTURER
         val deviceProd = Build.PRODUCT.matches(regexSDK)
         Log.e("URL", url + " " + deviceMan + " " + deviceProd)
-        if (url.isNotEmpty() && !deviceMan.equals("Google") && !deviceProd) {
-            findNavController().navigate(R.id.action_mainFragment_to_webviewFragment)
+        if (url.isNotEmpty()) {
+            findNavController().navigate(R.id.action_mainFragment_to_webviewFragment, urlBundle)
         } else {
             val data = addData()
             initRecycler(view, data)
         }
-
+        //    && !deviceMan.equals("Google") && !deviceProd
     }
 
     fun initRecycler(view: View, data: ArrayList<Source>) {
@@ -90,7 +92,7 @@ class MainFragment : Fragment() {
             for (j in i.sources)
                 source.add(Source(j.name, j.description, j.url))
         }
-        Log.d("data",source.toString())
+        Log.d("data", source.toString())
         return source
     }
 
