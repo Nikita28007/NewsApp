@@ -9,7 +9,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import com.example.testapp.R
 
 class WebviewFragment : Fragment() {
     lateinit var web: WebView

@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "111770990868",
-    "project_id": "testapp-48002",
-    "storage_bucket": "testapp-48002.appspot.com"
+    "project_number": "271314033036",
+    "project_id": "casaderapps",
+    "storage_bucket": "casaderapps.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:111770990868:android:88883081059b317d34aa01",
+        "mobilesdk_app_id": "1:271314033036:android:ac1e25aa9190ae072edea9",
         "android_client_info": {
-          "package_name": "com.example.testapp"
+          "package_name": "casa.derapps.tola"
         }
       },
       "oauth_client": [
         {
-          "client_id": "111770990868-5bhnnb6bldme5ebmro6r71bikva58nuu.apps.googleusercontent.com",
+          "client_id": "271314033036-s48q1n26dvd269do107d4pqab31s80nk.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCj-5wGZaPV966xcjZsPyAYHfKqdtwr1nU"
+          "current_key": "AIzaSyAkLeu64ee1po9D_2s4Fx0unpR_idX3ZhA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "111770990868-5bhnnb6bldme5ebmro6r71bikva58nuu.apps.googleusercontent.com",
+              "client_id": "271314033036-s48q1n26dvd269do107d4pqab31s80nk.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

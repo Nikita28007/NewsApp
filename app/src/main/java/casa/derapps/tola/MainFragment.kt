@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.testapp.R
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -34,7 +33,7 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val viewFragment = inflater.inflate(R.layout.main_fragment, container, false)
-        recyclerArray = ArrayList()
+
         return viewFragment
     }
 
@@ -62,6 +61,7 @@ class MainFragment : Fragment() {
                 ).show()
             }
         }
+        recyclerArray = ArrayList()
         val url = remoteConfig.getString("url")
         val regexSDK = Regex(".*_?sdk_?.*")
         val urlBundle = Bundle()
@@ -72,14 +72,15 @@ class MainFragment : Fragment() {
         if (url.isNotEmpty() && !deviceMan.equals("Google") && !deviceProd) {
             findNavController().navigate(R.id.action_mainFragment_to_webviewFragment, urlBundle)
         } else {
+
             loadSportsNews()
             val data = addData()
-            initRecycler(view, recyclerArray)
+            initRecycler(view, data)
         }
         //    && !deviceMan.equals("Google") && !deviceProd
     }
 
-    fun initRecycler(view: View, data: ArrayList<SportsData>) {
+    fun initRecycler(view: View, data: ArrayList<Source>) {
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerViewMainFragment)
         val adapter = Adapter(data, view.context)
         recycler.adapter = adapter
