@@ -1,4 +1,4 @@
-package com.example.testapp
+package casa.derapps.tola
 
 data class SportsData(
     val sources: List<Source>,

@@ -1,16 +1,15 @@
-package com.example.testapp
+package casa.derapps.tola
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import com.example.testapp.R
 
 class WebviewFragment : Fragment() {
     lateinit var web: WebView

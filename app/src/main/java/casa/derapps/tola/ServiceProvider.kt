@@ -1,4 +1,4 @@
-package com.example.testapp
+package casa.derapps.tola
 
 import retrofit2.Call
 import retrofit2.http.GET

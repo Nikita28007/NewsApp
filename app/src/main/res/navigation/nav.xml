@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.example.testapp.MainFragment"
+        android:name="casa.derapps.tola.MainFragment"
         android:label="MainFragment" >
         <action
             android:id="@+id/action_mainFragment_to_webviewFragment"
@@ -14,6 +14,6 @@
     </fragment>
     <fragment
         android:id="@+id/webviewFragment"
-        android:name="com.example.testapp.WebviewFragment"
+        android:name="casa.derapps.tola.WebviewFragment"
         android:label="WebviewFragment" />
 </navigation>
