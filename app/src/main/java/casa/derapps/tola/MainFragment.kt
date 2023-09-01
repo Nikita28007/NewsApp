@@ -1,6 +1,7 @@
 package casa.derapps.tola
 
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +17,9 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,10 +27,12 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.awaitResponse
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
+import kotlin.math.log
 
 
 class MainFragment : Fragment() {
-    lateinit var recyclerArray : ArrayList<SportsData>
+    lateinit var recyclerArray: ArrayList<SportsData>
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -65,22 +71,24 @@ class MainFragment : Fragment() {
         val url = remoteConfig.getString("url")
         val regexSDK = Regex(".*_?sdk_?.*")
         val urlBundle = Bundle()
+        //put url in bundle
         urlBundle.putString("URL", "https://stackoverflow.com/")
+        //urlBundle.putString("URL", url)
         val deviceMan = Build.MANUFACTURER
         val deviceProd = Build.PRODUCT.matches(regexSDK)
         Log.e("URL", url + " " + deviceMan + " " + deviceProd)
         if (url.isNotEmpty() && !deviceMan.equals("Google") && !deviceProd) {
             findNavController().navigate(R.id.action_mainFragment_to_webviewFragment, urlBundle)
         } else {
-
-            loadSportsNews()
-            val data = addData()
+            val dataArray = loadSportsNews()
+            //val data = addData(dataArray)
+            val data = addDataTest(view)
             initRecycler(view, data)
         }
         //    && !deviceMan.equals("Google") && !deviceProd
     }
 
-    fun initRecycler(view: View, data: ArrayList<Source>) {
+    fun initRecycler(view: View, data: ArrayList<NewsData>) {
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerViewMainFragment)
         val adapter = Adapter(data, view.context)
         recycler.adapter = adapter
@@ -88,9 +96,10 @@ class MainFragment : Fragment() {
 
     }
 
-    fun addData(): ArrayList<Source> {
+    fun addData(data: ArrayList<SportsData>): ArrayList<Source> {
         val source = ArrayList<Source>()
-        for (i in recyclerArray) {
+        Log.d("DATA", recyclerArray.toString())
+        for (i in data) {
             for (j in i.sources)
                 source.add(Source(j.name, j.description, j.url))
         }
@@ -98,8 +107,7 @@ class MainFragment : Fragment() {
         return source
     }
 
-
-    fun loadSportsNews() {
+    fun loadAPI(): ServiceProvider {
 
         val url = "https://newsapi.org/v2/top-headlines/"
         val api = Retrofit.Builder()
@@ -108,15 +116,18 @@ class MainFragment : Fragment() {
             .build()
             .create(ServiceProvider::class.java)
 
+        return api
+    }
 
+    fun loadSportsNews(): ArrayList<SportsData> {
+        val dataSports = ArrayList<SportsData>()
         //val textSport = view?.findViewById<TextView>(R.id.newsMainFragment)
         CoroutineScope(Dispatchers.Main).launch {
-            val response = api.getSports().awaitResponse()
+            val response = loadAPI().getSports().awaitResponse()
             if (response.isSuccessful) {
                 val sportResponse = response.body()
-
                 if (sportResponse != null) {
-
+                    dataSports.add(sportResponse)
                     recyclerArray.add(sportResponse)
                     //textSport?.text = sportResponse.sources.toString()
                     Log.d("Sport", recyclerArray.toString())
@@ -132,6 +143,34 @@ class MainFragment : Fragment() {
                 }
             }
         }
+        return dataSports
     }
+
+    fun getJsonDataFromAsset(context: Context, fileName: String): String? {
+        val jsonString: String
+        try {
+            jsonString = context.assets.open(fileName).bufferedReader().use { it.readText() }
+        } catch (ioException: IOException) {
+            ioException.printStackTrace()
+            return null
+        }
+        return jsonString
+    }
+
+    fun addDataTest(view: View): ArrayList<NewsData> {
+        val newsData = ArrayList<NewsData>()
+        val jsonFileString = getJsonDataFromAsset(view.context, "data.json")
+
+        val gson = Gson()
+        val listNewsData = object : TypeToken<List<NewsData>>() {}.type
+        val persons: List<NewsData> = gson.fromJson(jsonFileString, listNewsData)
+        persons.forEachIndexed { idx, newsData1 ->
+            Log.i("data", "> Item $idx:\n${newsData1.description}")
+            newsData.add(NewsData(newsData1.name,newsData1.description,newsData1.url))
+        }
+
+        return newsData
+    }
+
 
 }

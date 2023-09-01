@@ -15,7 +15,7 @@ class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         url = itemView.findViewById(R.id.url_recycler)
     }
 
-    fun bind(data: Source) {
+    fun bind(data: NewsData) {
 
         name.text = data.name
         description.text = data.description
