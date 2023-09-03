@@ -1,6 +1,5 @@
 package casa.derapps.tola
 
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -18,7 +17,6 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +26,6 @@ import retrofit2.Retrofit
 import retrofit2.awaitResponse
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
-import kotlin.math.log
 
 
 class MainFragment : Fragment() {
@@ -38,13 +35,9 @@ class MainFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val viewFragment = inflater.inflate(R.layout.main_fragment, container, false)
+        val fragmentView = inflater.inflate(R.layout.main_fragment, container, false)
 
-        return viewFragment
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        var url  = ""
         val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
         val configSettings = remoteConfigSettings {
             minimumFetchIntervalInSeconds = 3600
@@ -52,41 +45,29 @@ class MainFragment : Fragment() {
         remoteConfig.setConfigSettingsAsync(configSettings)
         remoteConfig.fetchAndActivate().addOnCompleteListener() { task ->
             if (task.isSuccessful) {
-                val updated = task.result
-                Log.d(TAG, "Config params updated: $updated")
-                Toast.makeText(
-                    context,
-                    "Fetch and activate succeeded",
-                    Toast.LENGTH_SHORT,
-                ).show()
-            } else {
-                Toast.makeText(
-                    context,
-                    "Fetch failed",
-                    Toast.LENGTH_SHORT,
-                ).show()
+                url = remoteConfig.getString("url")
+                Log.d("url",url)
             }
         }
         recyclerArray = ArrayList()
-        val url = remoteConfig.getString("url")
         val regexSDK = Regex(".*_?sdk_?.*")
         val urlBundle = Bundle()
-        //put url in bundle
-        urlBundle.putString("URL", "https://stackoverflow.com/")
-        //urlBundle.putString("URL", url)
+        urlBundle.putString("URL", url)
         val deviceMan = Build.MANUFACTURER
         val deviceProd = Build.PRODUCT.matches(regexSDK)
-        Log.e("URL", url + " " + deviceMan + " " + deviceProd)
         if (url.isNotEmpty() && !deviceMan.equals("Google") && !deviceProd) {
             findNavController().navigate(R.id.action_mainFragment_to_webviewFragment, urlBundle)
         } else {
             val dataArray = loadSportsNews()
             //val data = addData(dataArray)
-            val data = addDataTest(view)
-            initRecycler(view, data)
+            val data = addDataTest(fragmentView)
+            initRecycler(fragmentView, data)
         }
-        //    && !deviceMan.equals("Google") && !deviceProd
+
+        return fragmentView
     }
+
+
 
     fun initRecycler(view: View, data: ArrayList<NewsData>) {
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerViewMainFragment)
@@ -165,7 +146,6 @@ class MainFragment : Fragment() {
         val listNewsData = object : TypeToken<List<NewsData>>() {}.type
         val persons: List<NewsData> = gson.fromJson(jsonFileString, listNewsData)
         persons.forEachIndexed { idx, newsData1 ->
-            Log.i("data", "> Item $idx:\n${newsData1.description}")
             newsData.add(NewsData(newsData1.name,newsData1.description,newsData1.url))
         }
 
