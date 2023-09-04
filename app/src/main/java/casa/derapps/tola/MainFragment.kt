@@ -6,7 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -28,16 +30,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), OnClickListener {
     lateinit var recyclerArray: ArrayList<SportsData>
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val fragmentView = inflater.inflate(R.layout.main_fragment, container, false)
+        var url = ":"
 
-        var url  = ""
         val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
         val configSettings = remoteConfigSettings {
             minimumFetchIntervalInSeconds = 3600
@@ -46,7 +49,7 @@ class MainFragment : Fragment() {
         remoteConfig.fetchAndActivate().addOnCompleteListener() { task ->
             if (task.isSuccessful) {
                 url = remoteConfig.getString("url")
-                Log.d("url",url)
+                Log.d("url1", url)
             }
         }
         recyclerArray = ArrayList()
@@ -58,23 +61,23 @@ class MainFragment : Fragment() {
         if (url.isNotEmpty() && !deviceMan.equals("Google") && !deviceProd) {
             findNavController().navigate(R.id.action_mainFragment_to_webviewFragment, urlBundle)
         } else {
-            val dataArray = loadSportsNews()
+            // val dataArray = loadSportsNews()
             //val data = addData(dataArray)
             val data = addDataTest(fragmentView)
             initRecycler(fragmentView, data)
+
         }
 
         return fragmentView
     }
 
 
-
     fun initRecycler(view: View, data: ArrayList<NewsData>) {
         val recycler = view.findViewById<RecyclerView>(R.id.recyclerViewMainFragment)
         val adapter = Adapter(data, view.context)
         recycler.adapter = adapter
+        adapter.setOnClickListener(this)
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-
     }
 
     fun addData(data: ArrayList<SportsData>): ArrayList<Source> {
@@ -146,10 +149,17 @@ class MainFragment : Fragment() {
         val listNewsData = object : TypeToken<List<NewsData>>() {}.type
         val persons: List<NewsData> = gson.fromJson(jsonFileString, listNewsData)
         persons.forEachIndexed { idx, newsData1 ->
-            newsData.add(NewsData(newsData1.name,newsData1.description,newsData1.url))
+            newsData.add(NewsData(newsData1.name, newsData1.description))
         }
 
         return newsData
+    }
+
+    override fun onClick(p0: View?) {
+        val urlnews = p0?.findViewById<TextView>(R.id.description_recycler)?.text
+        val bundleText = Bundle()
+        bundleText.putString("Desc", urlnews.toString())
+        findNavController().navigate(R.id.action_mainFragment_to_newsDetailsFragment, bundleText)
     }
 
 

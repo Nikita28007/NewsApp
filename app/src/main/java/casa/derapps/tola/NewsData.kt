@@ -12,4 +12,9 @@ class NewsData() {
         this.url = url
 
     }
+
+    constructor(name: String, description: String ): this() {
+        this.name = name
+        this.description = description
+    }
 }

@@ -11,9 +11,16 @@
         <action
             android:id="@+id/action_mainFragment_to_webviewFragment"
             app:destination="@id/webviewFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_newsDetailsFragment"
+            app:destination="@id/newsDetailsFragment" />
     </fragment>
     <fragment
         android:id="@+id/webviewFragment"
         android:name="casa.derapps.tola.WebviewFragment"
         android:label="WebviewFragment" />
+    <fragment
+        android:id="@+id/newsDetailsFragment"
+        android:name="casa.derapps.tola.NewsDetailsFragment"
+        android:label="NewsDetailsFragment" />
 </navigation>
