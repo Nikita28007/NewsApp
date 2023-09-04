@@ -13,7 +13,7 @@ class NewsData() {
 
     }
 
-    constructor(name: String, description: String ): this() {
+    constructor(name: String, description: String) : this() {
         this.name = name
         this.description = description
     }

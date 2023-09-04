@@ -5,7 +5,7 @@ class Source() {
     lateinit var description: String
     lateinit var url: String
 
-    constructor(name:String,description:String, url: String) : this(){
+    constructor(name: String, description: String, url: String) : this() {
         this.name = name
         this.description = description
         this.url = url
