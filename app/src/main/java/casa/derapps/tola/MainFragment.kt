@@ -1,19 +1,26 @@
 package casa.derapps.tola
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.ktx.BuildConfig
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
@@ -27,19 +34,19 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.awaitResponse
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.util.Locale
 
 
 class MainFragment : Fragment(), OnClickListener {
     lateinit var recyclerArray: ArrayList<SportsData>
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val fragmentView = inflater.inflate(R.layout.main_fragment, container, false)
-        var url = ":"
 
         val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
         val configSettings = remoteConfigSettings {
@@ -48,24 +55,27 @@ class MainFragment : Fragment(), OnClickListener {
         remoteConfig.setConfigSettingsAsync(configSettings)
         remoteConfig.fetchAndActivate().addOnCompleteListener() { task ->
             if (task.isSuccessful) {
-                url = remoteConfig.getString("url")
+                val url = remoteConfig.getString("url")
                 Log.d("url1", url)
-            }
-        }
-        recyclerArray = ArrayList()
-        val regexSDK = Regex(".*_?sdk_?.*")
-        val urlBundle = Bundle()
-        urlBundle.putString("URL", url)
-        val deviceMan = Build.MANUFACTURER
-        val deviceProd = Build.PRODUCT.matches(regexSDK)
-        if (url.isNotEmpty() && !deviceMan.equals("Google") && !deviceProd) {
-            findNavController().navigate(R.id.action_mainFragment_to_webviewFragment, urlBundle)
-        } else {
-            // val dataArray = loadSportsNews()
-            //val data = addData(dataArray)
-            val data = addDataTest(fragmentView)
-            initRecycler(fragmentView, data)
+                recyclerArray = ArrayList()
+                val urlBundle = Bundle()
+                urlBundle.putString("URL", url)
+                val deviceMan = Build.MANUFACTURER
+                Log.d("url2", url)
 
+                if (url.isNotEmpty() && !deviceMan.equals("Google") && !checkIsEmu()) {
+                    findNavController().navigate(
+                        R.id.action_mainFragment_to_fragmentWebView,
+                        urlBundle
+                    )
+                } else {
+                    // val dataArray = loadSportsNews()&& !deviceMan.equals("Google") && !checkIsEmu()
+                    //val data = addData(dataArray)
+                    fragmentView.isVisible = true
+                    val data = addDataTest(fragmentView)
+                    initRecycler(fragmentView, data)
+                }
+            }
         }
 
         return fragmentView
@@ -141,6 +151,41 @@ class MainFragment : Fragment(), OnClickListener {
         return jsonString
     }
 
+    private fun checkIsEmu(): Boolean {
+        if (BuildConfig.DEBUG) return false // when developer use this build on emulator
+
+        val phoneModel = Build.MODEL
+        val buildProduct = Build.PRODUCT
+        val buildHardware = Build.HARDWARE
+        val brand = Build.BRAND;
+
+
+        var result = (Build.FINGERPRINT.startsWith("generic")
+                || phoneModel.contains("google_sdk")
+                || phoneModel.lowercase(Locale.getDefault()).contains("droid4x")
+                || phoneModel.contains("Emulator")
+                || phoneModel.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || buildHardware == "goldfish"
+                || Build.BRAND.contains("google")
+                || buildHardware == "vbox86"
+                || buildProduct == "sdk"
+                || buildProduct == "google_sdk"
+                || buildProduct == "sdk_x86"
+                || buildProduct == "vbox86p"
+                || Build.BOARD.lowercase(Locale.getDefault()).contains("nox")
+                || Build.BOOTLOADER.lowercase(Locale.getDefault()).contains("nox")
+                || buildHardware.lowercase(Locale.getDefault()).contains("nox")
+                || buildProduct.lowercase(Locale.getDefault()).contains("nox"))
+
+        if (result) return true
+        result =
+            result or (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+        if (result) return true
+        result = result or ("google_sdk" == buildProduct)
+        return result
+    }
+
     fun addDataTest(view: View): ArrayList<NewsData> {
         val newsData = ArrayList<NewsData>()
         val jsonFileString = getJsonDataFromAsset(view.context, "data.json")
@@ -155,12 +200,27 @@ class MainFragment : Fragment(), OnClickListener {
         return newsData
     }
 
-    override fun onClick(p0: View?) {
-        val urlnews = p0?.findViewById<TextView>(R.id.description_recycler)?.text
+    override fun onClick(p0: View) {
+        val descriptionNews = p0.findViewById<TextView>(R.id.description_recycler)?.text
         val bundleText = Bundle()
-        bundleText.putString("Desc", urlnews.toString())
+        val image = p0.findViewById<ImageView>(R.id.imageRecycler)
+        bundleText.putString("Desc", descriptionNews.toString())
+        val drawable1 = image.drawable
+        val bitmapDrawable = drawable1 as BitmapDrawable
+        val bitmap = bitmapDrawable.bitmap
+        val imageString = convertImagenString(bitmap)
+        bundleText.putString("image", imageString)
+        Log.d("image", image.id.toString())
         findNavController().navigate(R.id.action_mainFragment_to_newsDetailsFragment, bundleText)
     }
 
+
+
+    fun convertImagenString(bitmap: Bitmap): String {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
+        val byte_arr: ByteArray = stream.toByteArray()
+        return Base64.encodeToString(byte_arr, Base64.DEFAULT)
+    }
 
 }

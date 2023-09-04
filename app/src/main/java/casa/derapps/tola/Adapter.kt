@@ -23,7 +23,7 @@ class Adapter(val data: ArrayList<NewsData>, val context: Context) : RecyclerVie
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.bind(data[position])
+        holder.bind(data[position],position)
     }
 
     fun setOnClickListener(listener: OnClickListener) {
